@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Controller
@@ -34,10 +35,19 @@ public class StudentController {
     }
 
     @GetMapping("/delete")
-    public @ResponseBody String deleteStudent(@RequestParam Long id){
-        studentRepository.deleteById(id);
-        return "user deleted";
+    public String deleteMapping(Model model){
+        model.addAttribute("student", new Student());
+        return "delete";
     }
+
+    @PostMapping("/delete")
+    public String deleteStudent(Model model, @ModelAttribute Student student){
+        model.addAttribute("student", student);
+        Optional<Student> deletedStudent = studentRepository.findById(student.getId());
+        deletedStudent.ifPresent(s -> studentRepository.delete(s));
+        return "redirect:/all";
+    }
+
     @GetMapping("/all")
     public String getAllStudents(Model model){
         model.addAttribute("students", studentRepository.findAll());
